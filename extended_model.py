@@ -67,9 +67,11 @@ class BartForSequenceClassificationWithInputsEmbeddings(BartPretrainedModel): # 
             decoder_input_ids = shift_tokens_right(
                 input_ids, self.config.pad_token_id, self.config.decoder_start_token_id
             )
+            
+        input_ids_dummy = None if inputs_embeds is not None else input_ids # input_ids set to None to use inputs_embeds # third change
 
         outputs = self.model(
-            None, # input_ids set to None to use inputs_embeds # third change
+            input_ids_dummy, # input_ids set to None to use inputs_embeds # fourth change
             attention_mask=attention_mask,
             decoder_input_ids=decoder_input_ids,
             decoder_attention_mask=decoder_attention_mask,
