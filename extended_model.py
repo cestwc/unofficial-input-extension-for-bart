@@ -1,3 +1,5 @@
+import torch
+
 from transformers import BartPretrainedModel, BartConfig, BartModel
 from transformers.models.bart.modeling_bart import BART_INPUTS_DOCSTRING, _TOKENIZER_FOR_DOC, _CHECKPOINT_FOR_DOC, Seq2SeqSequenceClassifierOutput, _CONFIG_FOR_DOC, BartClassificationHead, shift_tokens_right
 
