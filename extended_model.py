@@ -65,7 +65,7 @@ class BartForSequenceClassificationWithInputsEmbeddings(BartPretrainedModel): # 
 
 		input_ids_dummy = None if inputs_embeds is not None else input_ids # input_ids set to None to use inputs_embeds # second change
 
-		if input_ids_dummy is None decoder_input_ids is None and decoder_inputs_embeds is None: # third change
+		if input_ids_dummy is None and decoder_input_ids is None and decoder_inputs_embeds is None: # third change
 			decoder_input_ids = shift_tokens_right(
 				input_ids, self.config.pad_token_id, self.config.decoder_start_token_id
 			)
