@@ -11,31 +11,11 @@ to allow using inputs embeddings in Hugging Face BartForSequenceClassification
 import torch
 import torch.nn as nn
 
-from extended_model import BartForSequenceClassificationWithInputsEmbeddings
-bart = BartForSequenceClassificationWithInputsEmbeddings.from_pretrained('facebook/bart-base')
+from extended_model import BartForSequenceClassificationWithSoftInputs
 
-class Discriminator(nn.Module):
-	def __init__(self, bart):
+model = BartForSequenceClassificationWithSoftInputs.from_pretrained('facebook/bart-base')
 
-		super().__init__()
-
-		self.bart = bart
-
-		self.embedding = nn.Embedding(bart.model.shared.num_embeddings, bart.model.shared.embedding_dim)
-
-		self.embedding.weight.data.copy_(bart.model.shared.weight.data)
-
-	def forward(self, text):
-
-		#text = [batch size, sent len]
-
-		embedded = self.embedding(text)
-
-		return self.bart(input_ids = text, inputs_embeds = embedded).logits
-		
-model = Discriminator(bart)
+predictions = model(input_ids = your_input_ids, inputs_probs = your_inputs_probs).logits
 ```
 
-Around 30M more paramaters will be introduced by your own embedding layer.
-
-
+Models trained with this architecture could be later be loaded as normal BartForSequenceClassification, as they share the same parameters.
