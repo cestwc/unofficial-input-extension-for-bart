@@ -41,6 +41,7 @@ class BartForSequenceClassificationWithInputsEmbeddings(BartPretrainedModel): # 
 		decoder_head_mask=None,
 		cross_attn_head_mask=None,
 		encoder_outputs=None,
+		inputs_probs = None, # to allow soft index # second change
 		inputs_embeds=None,
 		decoder_inputs_embeds=None,
 		labels=None,
@@ -58,20 +59,28 @@ class BartForSequenceClassificationWithInputsEmbeddings(BartPretrainedModel): # 
 		if labels is not None:
 			use_cache = False
 
+		if inputs_probs is not None: # input_ids set to None to use inputs_embeds # third change
+			input_ids_dummy = None
+			embedding_dummy = self.model.shared.weight.unsqueeze(0).repeat(len(input_ids), 1, 1)
+			#embedding_dummy = [batch size, output dim, embed dim]
+			inputs_embeds_dummy = torch.bmm(inputs_probs, embedding_dummy)
+			#inputs_embeds_dummy = [batch size, sent len, embed dim]
+		else:
+			input_ids_dummy = input_ids
+			inputs_embeds_dummy = inputs_embeds # third change end
+
 		if input_ids is None and inputs_embeds is not None:
 			raise NotImplementedError(
 				f"Passing input embeddings is currently not supported for {self.__class__.__name__}"
 			)
 
-		input_ids_dummy = None if inputs_embeds is not None else input_ids # input_ids set to None to use inputs_embeds # second change
-
-		if input_ids_dummy is None and decoder_input_ids is None and decoder_inputs_embeds is None: # third change
+		if input_ids_dummy is None and decoder_input_ids is None and decoder_inputs_embeds is None: # fourth change
 			decoder_input_ids = shift_tokens_right(
 				input_ids, self.config.pad_token_id, self.config.decoder_start_token_id
 			)
 
 		outputs = self.model(
-			input_ids_dummy, # input_ids set to None to use inputs_embeds # fourth change
+			input_ids_dummy, # input_ids set to None to use inputs_embeds # fifth change
 			attention_mask=attention_mask,
 			decoder_input_ids=decoder_input_ids,
 			decoder_attention_mask=decoder_attention_mask,
@@ -79,7 +88,7 @@ class BartForSequenceClassificationWithInputsEmbeddings(BartPretrainedModel): # 
 			decoder_head_mask=decoder_head_mask,
 			cross_attn_head_mask=cross_attn_head_mask,
 			encoder_outputs=encoder_outputs,
-			inputs_embeds=inputs_embeds,
+			inputs_embeds=inputs_embeds_dummy, # inputs_embeds activated if not None # sixh change
 			decoder_inputs_embeds=decoder_inputs_embeds,
 			use_cache=use_cache,
 			output_attentions=output_attentions,
