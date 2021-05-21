@@ -11,7 +11,7 @@ from transformers.file_utils import (
     replace_return_docstrings,
 )
 
-class BartForSequenceClassificationWithInputsEmbeddings(BartPretrainedModel): # first change
+class BartForSequenceClassificationWithSoftInputs(BartPretrainedModel): # first change
 	def __init__(self, config: BartConfig, **kwargs):
 		super().__init__(config, **kwargs)
 		self.model = BartModel(config)
